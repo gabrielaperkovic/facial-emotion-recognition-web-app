@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { analyzeEmotion } from "../../services/emotionService";
 
 function CameraPreview() {
   const videoRef = useRef(null);
@@ -48,7 +49,7 @@ function CameraPreview() {
     setEmotionResult(null);
   };
 
-  const analyzeEmotion = () => {
+  const handleAnalyzeEmotion = async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
@@ -63,11 +64,13 @@ function CameraPreview() {
     const imageData = canvas.toDataURL("image/jpeg");
     setCapturedImage(imageData);
 
-    // Privremeni fake rezultat dok ne spojimo backend
-    setEmotionResult({
-      emotion: "Happy",
-      confidence: 92,
-    });
+    try {
+      const result = await analyzeEmotion(imageData);
+      setEmotionResult(result);
+    } catch (err) {
+      console.error(err);
+      setError("Greška pri analizi emocije.");
+    }
   };
 
   return (
@@ -103,7 +106,7 @@ function CameraPreview() {
         ) : (
           <>
             <button
-              onClick={analyzeEmotion}
+              onClick={handleAnalyzeEmotion}
               className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
             >
               Analiziraj emociju
@@ -124,15 +127,34 @@ function CameraPreview() {
           <p className="text-sm font-medium text-pink-500">
             Rezultat analize
           </p>
+
           <p className="mt-2 text-2xl font-bold text-slate-900">
-            {emotionResult.emotion}
+            {emotionResult.faceDetected
+              ? "Lice detektirano"
+              : "Lice nije detektirano"}
           </p>
-          <p className="text-slate-600">
-            Confidence: {emotionResult.confidence}%
+
+          <p className="mt-1 text-slate-600">
+            Broj detektiranih lica: {emotionResult.facesCount}
           </p>
+
+          {emotionResult.faceDetected && (
+            <div className="mt-4 rounded-xl bg-white p-4">
+              <p className="text-sm text-slate-500">
+                Dominantna emocija
+              </p>
+
+              <p className="mt-1 text-3xl font-bold text-slate-900">
+                {emotionResult.emotion}
+              </p>
+
+              <p className="mt-1 text-slate-600">
+                Confidence: {emotionResult.confidence}%
+              </p>
+            </div>
+          )}
         </div>
       )}
-
       {capturedImage && (
         <div className="mt-6">
           <p className="mb-2 text-sm font-medium text-slate-600">
