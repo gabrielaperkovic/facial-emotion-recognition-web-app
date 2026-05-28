@@ -1,5 +1,11 @@
 import { useRef, useState } from "react";
-import { analyzeEmotion } from "../../services/emotionService";
+import { useAuth } from "../../context/AuthContext";
+import {
+  analyzeEmotion,
+  startEmotionSession,
+  saveEmotionSample,
+  finishEmotionSession,
+} from "../../services/emotionService";
 
 function CameraPreview() {
   const videoRef = useRef(null);
@@ -10,6 +16,13 @@ function CameraPreview() {
   const [error, setError] = useState("");
   const [capturedImage, setCapturedImage] = useState(null);
   const [emotionResult, setEmotionResult] = useState(null);
+
+  const { user } = useAuth();
+  const intervalRef = useRef(null);
+
+  const [activeSessionId, setActiveSessionId] = useState(null);
+  const [isSessionRunning, setIsSessionRunning] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState(null);
 
   const startCamera = async () => {
     setError("");
@@ -31,6 +44,83 @@ function CameraPreview() {
     } catch (err) {
       console.error(err);
       setError("Kamera nije dostupna ili pristup nije dopušten.");
+    }
+  };
+
+  const captureFrame = () => {
+    if (!videoRef.current || !canvasRef.current) return null;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    return canvas.toDataURL("image/jpeg");
+  };
+
+  const startLiveSession = async () => {
+  if (!user) {
+    setError("Korisnik nije prijavljen.");
+    return;
+  }
+
+  try {
+    setError("");
+    setSessionSummary(null);
+
+    if (!isCameraOn) {
+      await startCamera();
+    }
+
+    const session = await startEmotionSession(user.id);
+      setActiveSessionId(session.id);
+      setIsSessionRunning(true);
+
+      intervalRef.current = setInterval(async () => {
+        const imageData = captureFrame();
+
+        if (!imageData) return;
+
+        setCapturedImage(imageData);
+
+        const result = await analyzeEmotion(imageData);
+        setEmotionResult(result);
+
+        await saveEmotionSample({
+          session_id: session.id,
+          emotion: result.emotion,
+          confidence: result.confidence,
+          faceDetected: result.faceDetected,
+          facesCount: result.facesCount,
+        });
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      setError("Greška pri pokretanju sessiona.");
+    }
+  };
+
+  const stopLiveSession = async () => {
+    try {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
+      setIsSessionRunning(false);
+
+      if (activeSessionId) {
+        const summary = await finishEmotionSession(activeSessionId);
+        setSessionSummary(summary);
+        setActiveSessionId(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Greška pri završavanju sessiona.");
     }
   };
 
@@ -96,29 +186,40 @@ function CameraPreview() {
       {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
 
       <div className="mt-6 flex flex-wrap gap-4">
-        {!isCameraOn ? (
+        {!isCameraOn && (
           <button
             onClick={startCamera}
             className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
           >
             Start kamera
           </button>
-        ) : (
-          <>
-            <button
-              onClick={handleAnalyzeEmotion}
-              className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
-            >
-              Analiziraj emociju
-            </button>
+        )}
 
-            <button
-              onClick={stopCamera}
-              className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800"
-            >
-              Stop kamera
-            </button>
-          </>
+        {isCameraOn && !isSessionRunning && (
+          <button
+            onClick={startLiveSession}
+            className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
+          >
+            Pokreni session
+          </button>
+        )}
+
+        {isSessionRunning && (
+          <button
+            onClick={stopLiveSession}
+            className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white hover:bg-red-600"
+          >
+            Zaustavi session
+          </button>
+        )}
+
+        {isCameraOn && !isSessionRunning && (
+          <button
+            onClick={stopCamera}
+            className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800"
+          >
+            Stop kamera
+          </button>
         )}
       </div>
 
@@ -165,6 +266,24 @@ function CameraPreview() {
             alt="Captured frame"
             className="w-48 rounded-xl border border-slate-200"
           />
+        </div>
+      )}
+      {sessionSummary && (
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-sm font-medium text-slate-500">
+            Sažetak sessiona
+          </p>
+
+          <p className="mt-2 text-xl font-bold text-slate-900">
+            Dominantna emocija: {sessionSummary.dominant_emotion || "N/A"}
+          </p>
+
+          <p className="text-slate-600">
+            Prosječna sigurnost:{" "}
+            {sessionSummary.average_confidence
+              ? `${sessionSummary.average_confidence.toFixed(2)}%`
+              : "N/A"}
+          </p>
         </div>
       )}
     </div>

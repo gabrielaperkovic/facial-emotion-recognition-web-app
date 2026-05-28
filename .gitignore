@@ -1,19 +1,15 @@
-# Python
 venv/
+venv311/
+venv312/
+
 __pycache__/
 *.pyc
 
-# Django
-db.sqlite3
-
-# Node
 node_modules/
 
-# Env
 .env
 
-# VS Code
-.vscode/
-
-# Build
 dist/
+build/
+
+*.sqlite3

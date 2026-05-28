@@ -1,29 +1,32 @@
+import { useEffect, useState } from "react";
 import MainLayout from "../components/layout/MainLayout";
+import { useAuth } from "../context/AuthContext";
+import { getSessionHistory } from "../services/emotionService";
 
 function History() {
-  const sessions = [
-    {
-      id: 1,
-      date: "12. 6. 2026.",
-      emotion: "Happy",
-      duration: "02:34",
-      confidence: "91%",
-    },
-    {
-      id: 2,
-      date: "11. 6. 2026.",
-      emotion: "Neutral",
-      duration: "01:48",
-      confidence: "84%",
-    },
-    {
-      id: 3,
-      date: "10. 6. 2026.",
-      emotion: "Surprised",
-      duration: "03:12",
-      confidence: "88%",
-    },
-  ];
+  const { user } = useAuth();
+
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const data = await getSessionHistory(user.id);
+        setSessions(data);
+      } catch (err) {
+        console.error(err);
+        setError("Greška pri dohvaćanju povijesti sessiona.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user) {
+      loadHistory();
+    }
+  }, [user]);
 
   return (
     <MainLayout>
@@ -36,40 +39,63 @@ function History() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 text-sm text-slate-500">
-            <tr>
-              <th className="px-6 py-4">Datum</th>
-              <th className="px-6 py-4">Dominantna emocija</th>
-              <th className="px-6 py-4">Trajanje</th>
-              <th className="px-6 py-4">Confidence</th>
-            </tr>
-          </thead>
+      {loading && <p className="text-slate-600">Učitavanje...</p>}
 
-          <tbody>
-            {sessions.map((session) => (
-              <tr
-                key={session.id}
-                className="border-t border-slate-100"
-              >
-                <td className="px-6 py-4 text-slate-700">
-                  {session.date}
-                </td>
-                <td className="px-6 py-4 font-medium text-slate-900">
-                  {session.emotion}
-                </td>
-                <td className="px-6 py-4 text-slate-700">
-                  {session.duration}
-                </td>
-                <td className="px-6 py-4 text-slate-700">
-                  {session.confidence}
-                </td>
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && sessions.length === 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-slate-600">
+            Još nema spremljenih sessiona.
+          </p>
+        </div>
+      )}
+
+      {sessions.length > 0 && (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 text-sm text-slate-500">
+              <tr>
+                <th className="px-6 py-4">Početak</th>
+                <th className="px-6 py-4">Kraj</th>
+                <th className="px-6 py-4">Dominantna emocija</th>
+                <th className="px-6 py-4">Prosječna sigurnost</th>
+                <th className="px-6 py-4">Broj uzoraka</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {sessions.map((session) => (
+                <tr key={session.id} className="border-t border-slate-100">
+                  <td className="px-6 py-4 text-slate-700">
+                    {new Date(session.started_at).toLocaleString()}
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-700">
+                    {session.ended_at
+                      ? new Date(session.ended_at).toLocaleString()
+                      : "U tijeku"}
+                  </td>
+
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    {session.dominant_emotion || "N/A"}
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-700">
+                    {session.average_confidence
+                      ? `${session.average_confidence.toFixed(2)}%`
+                      : "N/A"}
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-700">
+                    {session.samples?.length || 0}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </MainLayout>
   );
 }
