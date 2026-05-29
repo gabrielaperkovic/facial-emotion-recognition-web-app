@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 import { getSessionHistory } from "../services/emotionService";
@@ -40,14 +41,11 @@ function History() {
       </div>
 
       {loading && <p className="text-slate-600">Učitavanje...</p>}
-
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && sessions.length === 0 && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-slate-600">
-            Još nema spremljenih sessiona.
-          </p>
+          <p className="text-slate-600">Još nema spremljenih sessiona.</p>
         </div>
       )}
 
@@ -61,6 +59,7 @@ function History() {
                 <th className="px-6 py-4">Dominantna emocija</th>
                 <th className="px-6 py-4">Prosječna sigurnost</th>
                 <th className="px-6 py-4">Broj uzoraka</th>
+                <th className="px-6 py-4">Detalji</th>
               </tr>
             </thead>
 
@@ -89,6 +88,16 @@ function History() {
 
                   <td className="px-6 py-4 text-slate-700">
                     {session.samples?.length || 0}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <Link
+                      to={`/history/${session.id}`}
+                      state={{ session }}
+                      className="rounded-xl bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600"
+                    >
+                      Detalji
+                    </Link>
                   </td>
                 </tr>
               ))}

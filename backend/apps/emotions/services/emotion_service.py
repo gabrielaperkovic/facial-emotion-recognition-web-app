@@ -24,8 +24,20 @@ def analyze_emotion_from_base64(image_data):
 
     emotion = None
     confidence = None
+    face_box = None
 
     if face_detected:
+        x, y, w, h = faces[0]
+
+        image_height, image_width = image.shape[:2]
+
+        face_box = {
+            "x": (x / image_width) * 100,
+            "y": (y / image_height) * 100,
+            "width": (w / image_width) * 100,
+            "height": (h / image_height) * 100,
+        }
+
         face = crop_first_face(image, faces)
         processed_face = preprocess_face_for_model(face)
 
@@ -37,6 +49,7 @@ def analyze_emotion_from_base64(image_data):
     return {
         "faceDetected": face_detected,
         "facesCount": faces_count,
+        "faceBox": face_box,
         "emotion": emotion,
         "confidence": confidence,
     }

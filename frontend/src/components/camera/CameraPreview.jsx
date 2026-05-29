@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
 import { useAuth } from "../../context/AuthContext";
 import {
   analyzeEmotion,
@@ -6,6 +8,23 @@ import {
   saveEmotionSample,
   finishEmotionSession,
 } from "../../services/emotionService";
+
+const emotionLabels = {
+  Angry: { label: "Ljutnja", emoji: "😠" },
+  Disgust: { label: "Gađenje", emoji: "🤢" },
+  Fear: { label: "Strah", emoji: "😨" },
+  Happy: { label: "Sreća", emoji: "😊" },
+  Sad: { label: "Tuga", emoji: "😢" },
+  Surprise: { label: "Iznenađenje", emoji: "😮" },
+  Neutral: { label: "Neutralno", emoji: "😐" },
+};
+
+function getEmotionInfo(emotion) {
+  return emotionLabels[emotion] || {
+    label: emotion || "N/A",
+    emoji: "❔",
+  };
+}
 
 function CameraPreview() {
   const videoRef = useRef(null);
@@ -25,6 +44,9 @@ function CameraPreview() {
   const [emotionResult, setEmotionResult] = useState(null);
   const [sessionTimeline, setSessionTimeline] = useState([]);
   const [sessionSummary, setSessionSummary] = useState(null);
+
+  const currentEmotion = getEmotionInfo(emotionResult?.emotion);
+  const summaryEmotion = getEmotionInfo(sessionSummary?.dominant_emotion);
 
   const captureFrame = () => {
     if (!videoRef.current || !canvasRef.current) return null;
@@ -46,13 +68,11 @@ function CameraPreview() {
   const runPreviewAnalysis = async () => {
     try {
       const imageData = captureFrame();
-
       if (!imageData) return;
 
       setCapturedImage(imageData);
 
       const result = await analyzeEmotion(imageData);
-
       setEmotionResult(result);
     } catch (err) {
       console.error(err);
@@ -148,7 +168,6 @@ function CameraPreview() {
 
   const processFrame = async (sessionId) => {
     const imageData = captureFrame();
-
     if (!imageData) return;
 
     setCapturedImage(imageData);
@@ -231,9 +250,22 @@ function CameraPreview() {
   };
 
   return (
-    <div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
+    <div className="pb-28">
+      <section className="grid items-stretch gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Kamera</p>
+              <h2 className="text-xl font-bold text-slate-900">Live video</h2>
+            </div>
+
+            {isSessionRunning && (
+              <span className="rounded-full bg-red-500 px-3 py-1 text-sm font-medium text-white">
+                Live session
+              </span>
+            )}
+          </div>
+
           <div className="relative aspect-video max-h-[360px] overflow-hidden rounded-2xl bg-slate-900">
             <video
               ref={videoRef}
@@ -243,15 +275,21 @@ function CameraPreview() {
               className="h-full w-full object-cover"
             />
 
+            {emotionResult?.faceDetected && emotionResult?.faceBox && (
+              <div
+                className="absolute rounded-[40%] border-2 border-pink-400 shadow-[0_0_25px_rgba(236,72,153,0.6)]"
+                style={{
+                  left: `${emotionResult.faceBox.x + 3}%`,
+                  top: `${emotionResult.faceBox.y - 6}%`,
+                  width: `${emotionResult.faceBox.width - 6}%`,
+                  height: `${emotionResult.faceBox.height + 18}%`,
+                }}
+              />
+            )}
+
             {!isCameraOn && (
               <div className="absolute inset-0 flex items-center justify-center text-slate-300">
                 Camera preview placeholder
-              </div>
-            )}
-
-            {isSessionRunning && (
-              <div className="absolute left-4 top-4 rounded-full bg-red-500 px-3 py-1 text-sm font-medium text-white">
-                Live session
               </div>
             )}
           </div>
@@ -259,8 +297,8 @@ function CameraPreview() {
           <canvas ref={canvasRef} className="hidden" />
 
           {capturedImage && (
-            <div className="mt-4">
-              <p className="mb-2 text-sm font-medium text-slate-600">
+            <div className="mt-5">
+              <p className="mb-2 text-sm font-medium text-slate-500">
                 Zadnji analizirani frame
               </p>
 
@@ -273,114 +311,104 @@ function CameraPreview() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {error && (
-            <div className="rounded-xl bg-red-50 p-4 text-red-500">
+            <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-500">
               {error}
             </div>
           )}
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 className="text-xl font-bold text-slate-900">
-              Kontrole sessiona
-            </h2>
+          <div className="flex flex-1 flex-col justify-center rounded-2xl border border-pink-100 bg-pink-50 p-6 text-center shadow-sm">
+            <p className="text-sm font-medium text-pink-500">
+              Trenutna analiza
+            </p>
 
-            <div className="mt-5 flex flex-wrap gap-4">
-              {!isCameraOn && (
-                <button
-                  onClick={startCamera}
-                  className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
-                >
-                  Start kamera
-                </button>
-              )}
+            {!emotionResult && (
+              <div className="mt-6">
+                <p className="text-6xl">🎥</p>
+                <p className="mt-4 text-2xl font-bold text-slate-900">
+                  Čekam kameru
+                </p>
+                <p className="mt-2 text-slate-500">
+                  Pokreni kameru za live prepoznavanje emocija.
+                </p>
+              </div>
+            )}
 
-              {isCameraOn && !isSessionRunning && (
-                <>
-                  <button
-                    onClick={startLiveSession}
-                    className="rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
-                  >
-                    Pokreni session
-                  </button>
+            {emotionResult && !emotionResult.faceDetected && (
+              <div className="mt-6">
+                <p className="text-6xl">🫥</p>
+                <p className="mt-4 text-2xl font-bold text-slate-900">
+                  Lice nije detektirano
+                </p>
+                <p className="mt-2 text-slate-500">
+                  Pokušaj se bolje pozicionirati ispred kamere.
+                </p>
+              </div>
+            )}
 
-                  <button
-                    onClick={stopCamera}
-                    className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white hover:bg-slate-800"
-                  >
-                    Stop kamera
-                  </button>
-                </>
-              )}
+            {emotionResult?.faceDetected && (
+              <div className="mt-6">
+                <p className="text-6xl">{currentEmotion.emoji}</p>
+                <p className="mt-4 text-4xl font-bold text-slate-900">
+                  {currentEmotion.label}
+                </p>
+                <p className="mt-2 text-slate-600">
+                  Confidence: {emotionResult.confidence}%
+                </p>
+                <p className="mt-1 text-slate-500">
+                  Detektirana lica: {emotionResult.facesCount}
+                </p>
+              </div>
+            )}
 
-              {isSessionRunning && (
-                <button
-                  onClick={stopLiveSession}
-                  className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white hover:bg-red-600"
-                >
-                  Zaustavi session
-                </button>
-              )}
-            </div>
+            {emotionResult && !isSessionRunning && (
+              <p className="mx-auto mt-6 max-w-md rounded-xl bg-white p-4 text-sm text-slate-500">
+                Live analiza je aktivna, ali se rezultati ne spremaju dok ne
+                pokreneš session.
+              </p>
+            )}
           </div>
 
-          {emotionResult && (
-            <div className="rounded-2xl border border-pink-100 bg-pink-50 p-6">
-              <p className="text-sm font-medium text-pink-500">
-                Trenutna analiza
-              </p>
-
-              <p className="mt-3 text-3xl font-bold text-slate-900">
-                {emotionResult.faceDetected
-                  ? emotionResult.emotion
-                  : "Lice nije detektirano"}
-              </p>
-
-              {emotionResult.faceDetected && (
-                <>
-                  <p className="mt-2 text-slate-600">
-                    Confidence: {emotionResult.confidence}%
-                  </p>
-
-                  <p className="mt-1 text-slate-600">
-                    Detektirana lica: {emotionResult.facesCount}
-                  </p>
-                </>
-              )}
-
-              {!isSessionRunning && (
-                <p className="mt-4 text-sm text-slate-500">
-                  Live analiza je aktivna, ali se rezultati ne spremaju dok ne
-                  pokreneš session.
-                </p>
-              )}
-            </div>
-          )}
-
           {sessionSummary && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-medium text-slate-500">
                 Sažetak sessiona
               </p>
 
-              <p className="mt-3 text-xl font-bold text-slate-900">
-                Dominantna emocija:{" "}
-                {sessionSummary.dominant_emotion || "N/A"}
-              </p>
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="text-slate-600">Dominantna emocija</span>
 
-              <p className="mt-2 text-slate-600">
-                Prosječna sigurnost:{" "}
-                {sessionSummary.average_confidence
-                  ? `${sessionSummary.average_confidence.toFixed(2)}%`
-                  : "N/A"}
-              </p>
+                  <span className="font-semibold text-slate-900">
+                    {summaryEmotion.emoji} {summaryEmotion.label}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="text-slate-600">Confidence</span>
+
+                  <span className="font-semibold text-slate-900">
+                    {sessionSummary.average_confidence
+                      ? `${sessionSummary.average_confidence.toFixed(2)}%`
+                      : "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              <Link
+                to={`/history/${sessionSummary.id}`}
+                className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-pink-500 px-5 py-3 font-medium text-white hover:bg-pink-600"
+              >
+                Detalji sessiona
+              </Link>
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {isSessionRunning && sessionTimeline.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5">
             <p className="text-sm font-medium text-slate-500">
               Emotion timeline
@@ -392,37 +420,74 @@ function CameraPreview() {
           </div>
 
           <div className="space-y-3">
-            {sessionTimeline.slice(-10).map((item, index) => (
-              <div
-                key={`${item.time}-${index}`}
-                className="flex items-center justify-between rounded-xl bg-slate-50 p-4"
-              >
-                <div>
-                  <p className="font-semibold text-slate-900">
-                    {item.emotion}
-                  </p>
+            {sessionTimeline.slice(-10).map((item, index) => {
+              const info = getEmotionInfo(item.emotion);
 
-                  <p className="text-sm text-slate-500">
+              return (
+                <div
+                  key={`${item.time}-${index}`}
+                  className="grid grid-cols-[120px_1fr_auto] items-center gap-4 rounded-xl bg-slate-50 p-4"
+                >
+                  <p className="font-mono text-sm font-semibold text-pink-500">
                     {item.time}
                   </p>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{info.emoji}</span>
+                    <p className="font-semibold text-slate-900">
+                      {info.label}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-medium text-pink-600">
+                    {item.confidence}%
+                  </span>
                 </div>
-
-                <span className="rounded-full bg-pink-100 px-3 py-1 text-sm font-medium text-pink-600">
-                  {item.confidence}%
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </section>
       )}
 
-      {!isSessionRunning && sessionTimeline.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
-          <p className="text-sm text-slate-500">
-            Timeline se prikazuje samo tijekom aktivnog sessiona.
-          </p>
+      <div className="fixed bottom-[72px] left-1/2 z-50 -translate-x-1/2">
+        <div className="flex flex-wrap justify-center gap-3 rounded-2xl border border-pink-100 bg-white/90 px-5 py-4 shadow-2xl backdrop-blur">
+          {!isCameraOn && (
+            <button
+              onClick={startCamera}
+              className="rounded-2xl bg-pink-500 px-7 py-4 text-lg font-semibold text-white hover:bg-pink-600"
+            >
+              Start kamera
+            </button>
+          )}
+
+          {isCameraOn && !isSessionRunning && (
+            <>
+              <button
+                onClick={startLiveSession}
+                className="rounded-2xl bg-pink-500 px-7 py-4 text-lg font-semibold text-white hover:bg-pink-600"
+              >
+                Pokreni session
+              </button>
+
+              <button
+                onClick={stopCamera}
+                className="rounded-2xl border border-pink-200 bg-white px-7 py-4 text-lg font-semibold text-pink-500 hover:bg-pink-50"
+              >
+                Stop kamera
+              </button>
+            </>
+          )}
+
+          {isSessionRunning && (
+            <button
+              onClick={stopLiveSession}
+              className="rounded-2xl bg-red-500 px-7 py-4 text-lg font-semibold text-white hover:bg-red-600"
+            >
+              Zaustavi session
+            </button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

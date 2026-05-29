@@ -33,10 +33,6 @@ function Navbar() {
 
           {user && (
             <>
-              <NavLink to="/dashboard" className={linkClass}>
-                Dashboard
-              </NavLink>
-
               <NavLink to="/session" className={linkClass}>
                 Session
               </NavLink>

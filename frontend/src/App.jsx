@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import Session from "./pages/Session";
 import History from "./pages/History";
+import SessionDetails from "./pages/SessionDetails";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
@@ -14,14 +14,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/session"
@@ -37,6 +30,15 @@ function App() {
           element={
             <ProtectedRoute>
               <History />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history/:id"
+          element={
+            <ProtectedRoute>
+              <SessionDetails />
             </ProtectedRoute>
           }
         />
