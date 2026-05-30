@@ -8,6 +8,7 @@ function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,6 +18,12 @@ function Register() {
 
     setLoading(true);
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Lozinke se ne podudaraju.");
+      setLoading(false);
+      return;
+    }
 
     try {
       await registerUser(email, password, name);
@@ -78,6 +85,20 @@ function Register() {
               placeholder="Minimalno 6 znakova"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Ponovi lozinku
+            </label>
+            <input
+              type="password"
+              placeholder="Ponovi lozinku"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
               required
             />

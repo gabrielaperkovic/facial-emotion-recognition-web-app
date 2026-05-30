@@ -71,6 +71,13 @@ function Login() {
             Registriraj se
           </Link>
         </p>
+
+        <Link
+          to="/"
+          className="mt-6 block text-center text-sm text-slate-400 hover:text-pink-500"
+        >
+          Povratak na početnu
+        </Link>
       </div>
     </div>
   );

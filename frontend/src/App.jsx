@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Session from "./pages/Session";
 import History from "./pages/History";
 import SessionDetails from "./pages/SessionDetails";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
@@ -42,7 +43,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
+
     </BrowserRouter>
   );
 }

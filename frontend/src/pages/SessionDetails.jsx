@@ -21,6 +21,20 @@ function getEmotionInfo(emotion) {
   };
 }
 
+function formatSessionId(id) {
+  return `#${String(id).slice(0, 6).toUpperCase()}`;
+}
+
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleString("hr-HR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function SessionDetails() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -122,7 +136,7 @@ function SessionDetails() {
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
-            Detalji sessiona #{id}
+            Detalji sessiona {formatSessionId(id)}
           </h1>
           <p className="mt-2 text-slate-600">
             Analiza emocionalne reakcije tijekom jednog sessiona.
@@ -136,6 +150,30 @@ function SessionDetails() {
           Povratak
         </Link>
       </div>
+
+      <section className="mb-8 grid gap-6 md:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">
+            Vrijeme početka
+          </p>
+
+          <p className="mt-3 text-xl font-bold text-slate-900">
+            {formatDate(session.started_at)}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">
+            Vrijeme završetka
+          </p>
+
+          <p className="mt-3 text-xl font-bold text-slate-900">
+            {session.ended_at
+              ? formatDate(session.ended_at)
+              : "U tijeku"}
+          </p>
+        </div>
+      </section>
 
       <section className="grid gap-6 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

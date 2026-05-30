@@ -4,6 +4,38 @@ import MainLayout from "../components/layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 import { getSessionHistory } from "../services/emotionService";
 
+const emotionLabels = {
+  Angry: { label: "Ljutnja", emoji: "😠" },
+  Disgust: { label: "Gađenje", emoji: "🤢" },
+  Fear: { label: "Strah", emoji: "😨" },
+  Happy: { label: "Sreća", emoji: "😊" },
+  Sad: { label: "Tuga", emoji: "😢" },
+  Surprise: { label: "Iznenađenje", emoji: "😮" },
+  Neutral: { label: "Neutralno", emoji: "😐" },
+};
+
+
+function getEmotionInfo(emotion) {
+  return emotionLabels[emotion] || {
+    label: emotion || "N/A",
+    emoji: "❔",
+  };
+}
+
+function formatSessionId(id) {
+  return `#${String(id).slice(0, 6).toUpperCase()}`;
+}
+
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleString("hr-HR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function History() {
   const { user } = useAuth();
 
@@ -28,6 +60,8 @@ function History() {
       loadHistory();
     }
   }, [user]);
+
+  
 
   return (
     <MainLayout>
@@ -54,6 +88,7 @@ function History() {
           <table className="w-full text-left">
             <thead className="bg-slate-50 text-sm text-slate-500">
               <tr>
+                <th className="px-6 py-4">#ID </th>
                 <th className="px-6 py-4">Početak</th>
                 <th className="px-6 py-4">Kraj</th>
                 <th className="px-6 py-4">Dominantna emocija</th>
@@ -66,18 +101,23 @@ function History() {
             <tbody>
               {sessions.map((session) => (
                 <tr key={session.id} className="border-t border-slate-100">
+                  
+                  <td className="px-6 py-4 font-medium text-pink-500">
+                    {formatSessionId(session.id)}
+                  </td>
+
                   <td className="px-6 py-4 text-slate-700">
-                    {new Date(session.started_at).toLocaleString()}
+                    {formatDate(session.started_at).toLocaleString()}
                   </td>
 
                   <td className="px-6 py-4 text-slate-700">
                     {session.ended_at
-                      ? new Date(session.ended_at).toLocaleString()
+                      ? formatDate(session.ended_at).toLocaleString()
                       : "U tijeku"}
                   </td>
 
                   <td className="px-6 py-4 font-medium text-slate-900">
-                    {session.dominant_emotion || "N/A"}
+                    {getEmotionInfo(session.dominant_emotion).emoji || "N/A"}
                   </td>
 
                   <td className="px-6 py-4 text-slate-700">

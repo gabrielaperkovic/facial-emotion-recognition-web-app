@@ -52,9 +52,21 @@ function Navbar() {
             </Link>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="font-medium text-slate-700">
-                {userName}
-              </span>
+              <Link
+                to="/profile"
+                title="Uredi profil"
+                className="group flex items-center gap-3 rounded-full px-3 py-2 transition hover:bg-pink-50"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-500 font-semibold text-white">
+                  {userName?.charAt(0).toUpperCase()}
+                </div>
+
+                <div className="relative hidden sm:block">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {userName}
+                  </p>
+                </div>
+              </Link>
 
               <button
                 onClick={handleLogout}
