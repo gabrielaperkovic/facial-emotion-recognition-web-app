@@ -27,7 +27,7 @@ function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0f0f0f] px-6">
+    <div className="flex min-h-screen items-center justify-center bg-pink-100 px-6">
       <div className="w-full max-w-md rounded-3xl border border-pink-500/20 bg-white p-8 shadow-2xl">
         <h1 className="mb-6 text-center text-3xl font-bold text-slate-900">
           Login

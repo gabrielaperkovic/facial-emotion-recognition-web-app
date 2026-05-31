@@ -9,20 +9,22 @@ import {
   finishEmotionSession,
 } from "../../services/emotionService";
 
+import { emotionIcons } from "../../utils/emotionIcons";
+
 const emotionLabels = {
-  Angry: { label: "Ljutnja", emoji: "😠" },
-  Disgust: { label: "Gađenje", emoji: "🤢" },
-  Fear: { label: "Strah", emoji: "😨" },
-  Happy: { label: "Sreća", emoji: "😊" },
-  Sad: { label: "Tuga", emoji: "😢" },
-  Surprise: { label: "Iznenađenje", emoji: "😮" },
-  Neutral: { label: "Neutralno", emoji: "😐" },
+  Angry: { label: "Ljutnja", icon: emotionIcons.Angry },
+  Disgust: { label: "Gađenje", icon: emotionIcons.Disgust },
+  Fear: { label: "Strah", icon: emotionIcons.Fear },
+  Happy: { label: "Sreća", icon: emotionIcons.Happy },
+  Sad: { label: "Tuga", icon: emotionIcons.Sad },
+  Surprise: { label: "Iznenađenje", icon: emotionIcons.Surprise },
+  Neutral: { label: "Neutralno", icon: emotionIcons.Neutral },
 };
 
 function getEmotionInfo(emotion) {
   return emotionLabels[emotion] || {
     label: emotion || "N/A",
-    emoji: "❔",
+    icon: null,
   };
 }
 
@@ -349,7 +351,15 @@ function CameraPreview() {
 
             {emotionResult?.faceDetected && (
               <div className="mt-6">
-                <p className="text-6xl">{currentEmotion.emoji}</p>
+                {currentEmotion.icon ? (
+                  <img
+                    src={currentEmotion.icon}
+                    alt={currentEmotion.label}
+                    className="mx-auto h-20 w-20 object-contain"
+                  />
+                ) : (
+                  <p className="text-6xl">❔</p>
+                )}
                 <p className="mt-4 text-4xl font-bold text-slate-900">
                   {currentEmotion.label}
                 </p>
@@ -381,7 +391,14 @@ function CameraPreview() {
                   <span className="text-slate-600">Dominantna emocija</span>
 
                   <span className="font-semibold text-slate-900">
-                    {summaryEmotion.emoji} {summaryEmotion.label}
+                    {summaryEmotion.icon && (
+                      <img
+                        src={summaryEmotion.icon}
+                        alt={summaryEmotion.label}
+                        className="mr-2 inline h-6 w-6 object-contain"
+                      />
+                    )}
+                    {summaryEmotion.label}
                   </span>
                 </div>
 
@@ -433,7 +450,15 @@ function CameraPreview() {
                   </p>
 
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{info.emoji}</span>
+                    {info.icon ? (
+                      <img
+                        src={info.icon}
+                        alt={info.label}
+                        className="h-8 w-8 object-contain"
+                      />
+                    ) : (
+                      <span className="text-2xl">❔</span>
+                    )}
                     <p className="font-semibold text-slate-900">
                       {info.label}
                     </p>

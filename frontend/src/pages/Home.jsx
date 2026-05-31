@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import { useEffect, useRef } from "react";
+import { emotionIcons } from "../utils/emotionIcons";
 
 
 function Home() {
@@ -99,11 +100,11 @@ function Home() {
             </div>
 
             <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-black/40 px-4 py-2 backdrop-blur">
-              <span className="text-2xl">😊</span>
-              <span className="text-2xl">😐</span>
-              <span className="text-2xl">😮</span>
-              <span className="text-2xl">😢</span>
-              <span className="text-2xl">😠</span>
+              <img src={emotionIcons.Happy} alt="Sreća" className="h-7 w-7 object-contain" />
+              <img src={emotionIcons.Neutral} alt="Neutralno" className="h-7 w-7 object-contain" />
+              <img src={emotionIcons.Surprise} alt="Iznenađenje" className="h-7 w-7 object-contain" />
+              <img src={emotionIcons.Sad} alt="Tuga" className="h-7 w-7 object-contain" />
+              <img src={emotionIcons.Angry} alt="Ljutnja" className="h-7 w-7 object-contain" />
             </div>
           </div>
         </div>

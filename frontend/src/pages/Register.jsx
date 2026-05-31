@@ -38,7 +38,7 @@ function Register() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0f0f0f] px-6">
+    <div className="flex min-h-screen items-center justify-center bg-pink-100 px-6">
       <div className="w-full max-w-md rounded-3xl border border-pink-500/20 bg-white p-8 shadow-2xl">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-slate-900">Registracija</h1>

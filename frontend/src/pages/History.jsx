@@ -4,21 +4,22 @@ import MainLayout from "../components/layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 import { getSessionHistory } from "../services/emotionService";
 
-const emotionLabels = {
-  Angry: { label: "Ljutnja", emoji: "😠" },
-  Disgust: { label: "Gađenje", emoji: "🤢" },
-  Fear: { label: "Strah", emoji: "😨" },
-  Happy: { label: "Sreća", emoji: "😊" },
-  Sad: { label: "Tuga", emoji: "😢" },
-  Surprise: { label: "Iznenađenje", emoji: "😮" },
-  Neutral: { label: "Neutralno", emoji: "😐" },
-};
+import { emotionIcons } from "../utils/emotionIcons";
 
+const emotionLabels = {
+  Angry: { label: "Ljutnja", icon: emotionIcons.Angry },
+  Disgust: { label: "Gađenje", icon: emotionIcons.Disgust },
+  Fear: { label: "Strah", icon: emotionIcons.Fear },
+  Happy: { label: "Sreća", icon: emotionIcons.Happy },
+  Sad: { label: "Tuga", icon: emotionIcons.Sad },
+  Surprise: { label: "Iznenađenje", icon: emotionIcons.Surprise },
+  Neutral: { label: "Neutralno", icon: emotionIcons.Neutral },
+};
 
 function getEmotionInfo(emotion) {
   return emotionLabels[emotion] || {
     label: emotion || "N/A",
-    emoji: "❔",
+    icon: null,
   };
 }
 
@@ -85,52 +86,70 @@ function History() {
 
       {sessions.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-left">
+          <table className="w-full">
             <thead className="bg-slate-50 text-sm text-slate-500">
               <tr>
-                <th className="px-6 py-4">#ID </th>
-                <th className="px-6 py-4">Početak</th>
-                <th className="px-6 py-4">Kraj</th>
-                <th className="px-6 py-4">Dominantna emocija</th>
-                <th className="px-6 py-4">Prosječna sigurnost</th>
-                <th className="px-6 py-4">Broj uzoraka</th>
-                <th className="px-6 py-4">Detalji</th>
+                <th className="px-6 py-4 text-center">#ID</th>
+                <th className="px-6 py-4 text-center">Početak</th>
+                <th className="px-6 py-4 text-center">Kraj</th>
+                <th className="px-6 py-4 text-center">
+                  Dominantna emocija
+                </th>
+                <th className="px-6 py-4 text-center">
+                  Prosječna sigurnost
+                </th>
+                <th className="px-6 py-4 text-center">
+                  Broj uzoraka
+                </th>
+                <th className="px-6 py-4 text-center">Detalji</th>
               </tr>
             </thead>
 
             <tbody>
               {sessions.map((session) => (
-                <tr key={session.id} className="border-t border-slate-100">
-                  
-                  <td className="px-6 py-4 font-medium text-pink-500">
+                <tr
+                  key={session.id}
+                  className="border-t border-slate-100"
+                >
+                  <td className="px-6 py-4 text-center font-medium text-pink-500">
                     {formatSessionId(session.id)}
                   </td>
 
-                  <td className="px-6 py-4 text-slate-700">
-                    {formatDate(session.started_at).toLocaleString()}
+                  <td className="px-6 py-4 text-center text-slate-700">
+                    {formatDate(session.started_at)}
                   </td>
 
-                  <td className="px-6 py-4 text-slate-700">
+                  <td className="px-6 py-4 text-center text-slate-700">
                     {session.ended_at
-                      ? formatDate(session.ended_at).toLocaleString()
+                      ? formatDate(session.ended_at)
                       : "U tijeku"}
                   </td>
 
-                  <td className="px-6 py-4 font-medium text-slate-900">
-                    {getEmotionInfo(session.dominant_emotion).emoji || "N/A"}
+                  <td className="px-6 py-4 text-center">
+                    {getEmotionInfo(session.dominant_emotion).icon ? (
+                      <img
+                        src={getEmotionInfo(session.dominant_emotion).icon}
+                        alt={
+                          getEmotionInfo(session.dominant_emotion).label
+                        }
+                        className="inline-block h-8 w-8 object-contain"
+                      />
+                    ) : (
+                      "N/A"
+                    )}
                   </td>
 
-                  <td className="px-6 py-4 text-slate-700">
+                  <td className="px-6 py-4 text-center text-slate-700">
                     {session.average_confidence
                       ? `${session.average_confidence.toFixed(2)}%`
                       : "N/A"}
                   </td>
 
-                  <td className="px-6 py-4 text-slate-700">
+                  <td className="px-6 py-4 text-center text-slate-700">
                     {session.samples?.length || 0}
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     <Link
                       to={`/history/${session.id}`}
                       state={{ session }}

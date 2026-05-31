@@ -3,21 +3,23 @@ import { useEffect, useState } from "react";
 import MainLayout from "../components/layout/MainLayout";
 import { useAuth } from "../context/AuthContext";
 import { getSessionHistory } from "../services/emotionService";
+import { emotionIcons } from "../utils/emotionIcons";
 
 const emotionLabels = {
-  Angry: { label: "Ljutnja", emoji: "😠" },
-  Disgust: { label: "Gađenje", emoji: "🤢" },
-  Fear: { label: "Strah", emoji: "😨" },
-  Happy: { label: "Sreća", emoji: "😊" },
-  Sad: { label: "Tuga", emoji: "😢" },
-  Surprise: { label: "Iznenađenje", emoji: "😮" },
-  Neutral: { label: "Neutralno", emoji: "😐" },
+  Angry: { label: "Ljutnja", icon: emotionIcons.Angry },
+  Disgust: { label: "Gađenje", icon: emotionIcons.Disgust },
+  Fear: { label: "Strah", icon: emotionIcons.Fear },
+  Happy: { label: "Sreća", icon: emotionIcons.Happy },
+  Sad: { label: "Tuga", icon: emotionIcons.Sad },
+  Surprise: { label: "Iznenađenje", icon: emotionIcons.Surprise },
+  Neutral: { label: "Neutralno", icon: emotionIcons.Neutral },
 };
+
 
 function getEmotionInfo(emotion) {
   return emotionLabels[emotion] || {
     label: emotion || "N/A",
-    emoji: "❔",
+    icon: null,
   };
 }
 
@@ -180,8 +182,15 @@ function SessionDetails() {
           <p className="text-sm font-medium text-slate-500">
             Dominantna emocija
           </p>
-          <p className="mt-3 text-4xl font-bold text-slate-900">
-            {dominant.emoji} {dominant.label}
+          <p className="mt-3 flex flex-col items-center text-center text-4xl font-bold text-slate-900">
+            {dominant.icon && (
+              <img
+                src={dominant.icon}
+                alt={dominant.label}
+                className="mb-3 h-14 w-14 object-contain"
+              />
+            )}
+            {dominant.label}
           </p>
         </div>
 
@@ -189,20 +198,26 @@ function SessionDetails() {
           <p className="text-sm font-medium text-slate-500">
             Prosječna sigurnost
           </p>
-          <p className="mt-3 text-4xl font-bold text-slate-900">
-            {session.average_confidence
-              ? `${session.average_confidence.toFixed(2)}%`
-              : "N/A"}
-          </p>
+
+          <div className="flex h-[120px] items-center justify-center">
+            <p className="text-4xl font-bold text-slate-900">
+              {session.average_confidence
+                ? `${session.average_confidence.toFixed(2)}%`
+                : "N/A"}
+            </p>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-slate-500">
             Broj uzoraka
           </p>
-          <p className="mt-3 text-4xl font-bold text-slate-900">
-            {validSamples.length}
-          </p>
+
+          <div className="flex h-[120px] items-center justify-center">
+            <p className="text-4xl font-bold text-slate-900">
+              {validSamples.length}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -232,7 +247,15 @@ function SessionDetails() {
                     }}
                   />
 
-                  <p className="text-xl">{info.emoji}</p>
+                  {info.icon ? (
+                    <img
+                      src={info.icon}
+                      alt={info.label}
+                      className="h-8 w-8 object-contain"
+                    />
+                  ) : (
+                    <p className="text-xl">❔</p>
+                  )}
                   <p className="text-center text-xs font-medium text-slate-600">
                     {info.label}
                   </p>
@@ -254,7 +277,14 @@ function SessionDetails() {
             <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
               <span className="text-slate-600">Emocija</span>
               <span className="font-semibold text-slate-900">
-                {peak.emoji} {peak.label}
+                {peak.icon && (
+                  <img
+                    src={peak.icon}
+                    alt={peak.label}
+                    className="mr-2 inline h-6 w-6 object-contain"
+                  />
+                )}
+                {peak.label}
               </span>
             </div>
 
@@ -307,7 +337,15 @@ function SessionDetails() {
                 </p>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{info.emoji}</span>
+                  {info.icon ? (
+                    <img
+                      src={info.icon}
+                      alt={info.label}
+                      className="h-8 w-8 object-contain"
+                    />
+                  ) : (
+                    <span className="text-2xl">❔</span>
+                  )}
                   <p className="font-semibold text-slate-900">
                     {info.label}
                   </p>
