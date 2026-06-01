@@ -85,8 +85,8 @@ function History() {
       )}
 
       {sessions.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <table className="min-w-[900px] w-full text-left">
             <thead className="bg-slate-50 text-sm text-slate-500">
               <tr>
                 <th className="px-6 py-4 text-center">#ID</th>
@@ -96,7 +96,7 @@ function History() {
                   Dominantna emocija
                 </th>
                 <th className="px-6 py-4 text-center">
-                  Prosječna sigurnost
+                  Prosječna pouzdanost
                 </th>
                 <th className="px-6 py-4 text-center">
                   Broj uzoraka

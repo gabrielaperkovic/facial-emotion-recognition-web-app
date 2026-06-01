@@ -243,7 +243,7 @@ function SessionDetails() {
                   <div
                     className="w-full rounded-t-xl bg-pink-500"
                     style={{
-                      height: `${Math.max(item.percentage * 2, 24)}px`,
+                      height: `${Math.max(item.percentage * 1.7, 12)}px`,
                     }}
                   />
 
@@ -298,7 +298,7 @@ function SessionDetails() {
             </div>
 
             <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-              <span className="text-slate-600">Confidence</span>
+              <span className="text-slate-600">Pouzdanost</span>
               <span className="font-semibold text-slate-900">
                 {peakSample?.confidence
                   ? `${peakSample.confidence.toFixed(2)}%`

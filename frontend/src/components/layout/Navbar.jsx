@@ -21,12 +21,12 @@ function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
         <Link to="/" className="text-xl font-bold text-slate-900">
           Emotion<span className="text-pink-500">App</span>
         </Link>
 
-        <div className="flex items-center gap-6 text-sm">
+        <div className="flex flex-wrap items-center justify-end gap-6 text-sm">
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>

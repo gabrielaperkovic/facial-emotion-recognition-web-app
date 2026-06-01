@@ -364,7 +364,7 @@ function CameraPreview() {
                   {currentEmotion.label}
                 </p>
                 <p className="mt-2 text-slate-600">
-                  Confidence: {emotionResult.confidence}%
+                  Pouzdanost: {emotionResult.confidence}%
                 </p>
                 <p className="mt-1 text-slate-500">
                   Detektirana lica: {emotionResult.facesCount}
@@ -403,7 +403,8 @@ function CameraPreview() {
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                  <span className="text-slate-600">Confidence</span>
+                  <span className="text-slate-600">Pouzdanost
+                  </span>
 
                   <span className="font-semibold text-slate-900">
                     {sessionSummary.average_confidence
@@ -479,7 +480,7 @@ function CameraPreview() {
           {!isCameraOn && (
             <button
               onClick={startCamera}
-              className="rounded-2xl bg-pink-500 px-7 py-4 text-lg font-semibold text-white hover:bg-pink-600"
+              className="rounded-2xl bg-pink-500 px-5 py-3 text-sm font-semibold text-white hover:bg-pink-600 sm:px-7 sm:py-4 sm:text-lg"
             >
               Start kamera
             </button>
@@ -489,14 +490,13 @@ function CameraPreview() {
             <>
               <button
                 onClick={startLiveSession}
-                className="rounded-2xl bg-pink-500 px-7 py-4 text-lg font-semibold text-white hover:bg-pink-600"
+                className="rounded-2xl bg-pink-500 px-5 py-3 text-sm font-semibold text-white hover:bg-pink-600 sm:px-7 sm:py-4 sm:text-lg"
               >
                 Pokreni session
               </button>
-
               <button
                 onClick={stopCamera}
-                className="rounded-2xl border border-pink-200 bg-white px-7 py-4 text-lg font-semibold text-pink-500 hover:bg-pink-50"
+                className="rounded-2xl border border-pink-200 bg-white px-5 py-3 text-sm font-semibold text-pink-500 hover:bg-pink-50 sm:px-7 sm:py-4 sm:text-lg"
               >
                 Stop kamera
               </button>
@@ -504,12 +504,12 @@ function CameraPreview() {
           )}
 
           {isSessionRunning && (
-            <button
-              onClick={stopLiveSession}
-              className="rounded-2xl bg-red-500 px-7 py-4 text-lg font-semibold text-white hover:bg-red-600"
-            >
-              Zaustavi session
-            </button>
+              <button
+                onClick={stopLiveSession}
+                className="rounded-2xl bg-red-500 px-5 py-3 text-sm font-semibold text-white hover:bg-red-600 sm:px-7 sm:py-4 sm:text-lg"
+              >
+                Zaustavi session
+              </button>
           )}
         </div>
       </div>
