@@ -31,7 +31,7 @@ The application uses a webcam stream to detect faces, classify facial emotions u
 - TensorFlow
 - Keras
 - OpenCV
-- Mini-Xception model trained on FER2013
+- Pre-trained Mini-Xception emotion recognition model (FER2013)
 
 ### Database & Authentication
 - Supabase
@@ -117,3 +117,19 @@ Faculty of Electrical Engineering and Computing (FER)
 University of Zagreb
 
 Bachelor's Thesis 2026
+
+## References
+
+### Mini-Xception Emotion Recognition Model
+
+This project uses a pre-trained Mini-Xception facial emotion recognition model described in:
+
+Arriaga, O., Valdenegro-Toro, M., & Plöger, P. (2017).
+*Real-time Convolutional Neural Networks for Emotion and Gender Classification*.
+https://arxiv.org/abs/1710.07557
+
+### Emotion Icons
+
+Emotion icons used in the user interface were provided by Icons8:
+
+https://icons8.com
